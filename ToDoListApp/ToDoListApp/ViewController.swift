@@ -130,6 +130,34 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             print("セル更新エラー")
         }
     }
+    
+    /* セルが編集可能であることをアプリに通知 */
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    /* セルを削除した時の処理 */
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        /* 削除処理かどうか */
+        if editingStyle == UITableViewCell.EditingStyle.delete {
+            /* ToDoリストから削除 */
+            todoList.remove(at: indexPath.row)
+            
+            /* セルを削除 */
+            tableView.deleteRows(at: [indexPath], with: UITableView.RowAnimation.fade)
+            
+            /* データ保存 */
+            do {
+                let data:Data = try NSKeyedArchiver.archivedData(withRootObject: todoList, requiringSecureCoding: true)
+                
+                let userDefaults = UserDefaults.standard
+                userDefaults.set(data, forKey: "todoList")
+                userDefaults.synchronize()
+            } catch {
+                print("データ削除エラー")
+            }
+        }
+    }
 }
 
 class MyTodo: NSObject, NSSecureCoding {
